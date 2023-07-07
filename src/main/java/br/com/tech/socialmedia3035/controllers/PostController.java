@@ -1,8 +1,10 @@
 package br.com.tech.socialmedia3035.controllers;
 
 import br.com.tech.socialmedia3035.dtos.PostDTO;
+import br.com.tech.socialmedia3035.security.user.UserSecurity;
 import br.com.tech.socialmedia3035.services.PostService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -24,9 +26,9 @@ public class PostController {
     //do usuário autenticado para o post estar vinculado a esse usuário.
     //Obs: Os campos title e private não deverão ser nulos.
     @PostMapping("/create")
-    public ResponseEntity<PostDTO>createPost(@RequestBody PostDTO dto){
+    public ResponseEntity<PostDTO>createPost(@RequestBody PostDTO dto, @AuthenticationPrincipal UserSecurity user){
         URI uri = ServletUriComponentsBuilder.fromCurrentRequestUri().path("/{id}").buildAndExpand(dto.getId()).toUri();
-        return ResponseEntity.created(uri).body(this.service.createPost());
+        return ResponseEntity.created(uri).body(this.service.createPost(dto, user));
     }
 
     //● Endpoint para atualizar a postagem. O usuário poderá atualizar o post através
@@ -49,8 +51,8 @@ public class PostController {
     //ver todas as suas postagens através de um get.
     // TODO: 05/07/2023 REFAZER 
     @GetMapping("/list")
-    public ResponseEntity<List<PostDTO>>listPosts(Long id){
-      return ResponseEntity.ok().body(this.service.listPostByUser(id));
+    public ResponseEntity<List<PostDTO>>listPosts(@AuthenticationPrincipal UserSecurity userSecurity){
+      return ResponseEntity.ok().body(this.service.listPostByUser(userSecurity));
     }
 
     //● Endpoint para alterar a privacidade do post. O usuário poderá alterar o post

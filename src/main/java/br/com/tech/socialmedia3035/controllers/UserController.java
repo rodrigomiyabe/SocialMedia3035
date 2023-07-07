@@ -1,12 +1,12 @@
 package br.com.tech.socialmedia3035.controllers;
 
 import br.com.tech.socialmedia3035.dtos.UserDTO;
+import br.com.tech.socialmedia3035.security.user.UserSecurity;
 import br.com.tech.socialmedia3035.services.UserService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -19,17 +19,12 @@ public class UserController {
         this.service = service;
     }
 
-    @PostMapping("/signUp")
-    public ResponseEntity<UserDTO>signUp(@RequestBody UserDTO dto){
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequestUri().path("/{id}").buildAndExpand(dto.getId()).toUri();
-        return ResponseEntity.created(uri).body(service.createUser(dto));
-    }
 
     //Endpoint para editar um usuário. O usuário vai poder editar seu perfil através
     //de um update.
     @PatchMapping("/update")
-    public ResponseEntity<UserDTO>updateUser(@RequestBody UserDTO dto,@RequestParam Long id){
-        return ResponseEntity.ok().body(service.updateUser(dto,id));
+    public ResponseEntity<UserDTO>updateUser(@RequestBody UserDTO dto, @AuthenticationPrincipal UserSecurity security){
+        return ResponseEntity.ok().body(service.updateUser(dto,security));
     }
 
     //● Endpoint para deletar um usuário. O usuário poderá deletar sua conta

@@ -23,13 +23,13 @@ import java.util.Collection;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserDTO implements Serializable, UserDetails {
+public class UserDTO implements Serializable {
     private static final Long serialVersionUID = 1L;
 
     private Long id;
 
     @NotBlank(message = "This field can't be null!")
-    private String userName;
+    private String username;
 
     @NotBlank(message = "This field can't be null!")
     private String name;
@@ -55,7 +55,7 @@ public class UserDTO implements Serializable, UserDetails {
     private Role role;
 
     public UserDTO(String userName, String name, String password, String mail, String phone) {
-        this.userName = userName;
+        this.username = userName;
         this.name = name;
         this.password = password;
         this.mail = mail;
@@ -67,11 +67,10 @@ public class UserDTO implements Serializable, UserDetails {
         this.mail = user.getMail();
         this.phone = user.getPhone();
         this.password = user.getPassword();
-        this.userName = user.getUsername();
+        this.username = user.getUsername();
         this.profileLink = user.getProfileLink();
         this.role = user.getRole();
     }
-
 
     public UserDTO(String name, String profileLink) {
         this.name = name;
@@ -83,7 +82,7 @@ public class UserDTO implements Serializable, UserDetails {
         this.mail = request.getMail();
         this.phone = request.getPhone();
         this.password = request.getPassword();
-        this.userName = request.getUsername();
+        this.username = request.getUsername();
         this.role = Role.ADMIN;
     }
 
@@ -92,33 +91,4 @@ public class UserDTO implements Serializable, UserDetails {
         this.password = userDetails.getPassword();
     }
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
-    }
-
-    @Override
-    public String getUsername() {
-        return this.userName;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return false;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return false;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return false;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return false;
-    }
 }

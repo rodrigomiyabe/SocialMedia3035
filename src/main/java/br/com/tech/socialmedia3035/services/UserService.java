@@ -3,11 +3,14 @@ package br.com.tech.socialmedia3035.services;
 import br.com.tech.socialmedia3035.dtos.UserDTO;
 import br.com.tech.socialmedia3035.entities.User;
 import br.com.tech.socialmedia3035.repositories.UserRepository;
+import br.com.tech.socialmedia3035.security.user.UserSecurity;
 import br.com.tech.socialmedia3035.services.exceptions.EntityAlreadyExists;
 import br.com.tech.socialmedia3035.services.exceptions.EntityNotFound;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,6 +19,7 @@ public class UserService {
 
     private final UserRepository repository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+    private BCrypt bCrypt;
     public UserService(UserRepository repository) {
         this.repository = repository;
     }
@@ -43,21 +47,40 @@ public class UserService {
         }
     }
 
-    public UserDTO updateUser(UserDTO dto, Long id){
-        User userUpdated = this.repository.findById(id).orElseThrow(() ->new EntityNotFound("User not found!"));
-        userUpdated.setUpdateAt(dto.getUpdateAt());
-        userUpdated.setName(dto.getName());
-        if(this.repository.existsByMail(dto.getMail())){
-            throw new EntityAlreadyExists("Mail already exist!");
+    public UserDTO updateUser(UserDTO dto, UserSecurity userSecurity){
+        User userUpdated = this.repository.findByUsername(userSecurity.getUsername()).orElseThrow(() ->new EntityNotFound("User not found!"));
+        userUpdated.setUpdateAt(LocalDate.now());
+        if(dto.getName().isBlank()){
+            userUpdated.setName(userUpdated.getName());
         }else {
-            userUpdated.setMail(dto.getMail());
+            userUpdated.setName(dto.getName());
         }
-        if(this.repository.existsByPhone(dto.getPhone())){
-            throw new EntityAlreadyExists("Phone already exist!");
+        if(dto.getMail().isBlank()){
+            userUpdated.setMail(userUpdated.getMail());
+        }
+        else {
+            if(this.repository.existsByMail(dto.getMail())){
+                throw new EntityAlreadyExists("Mail already exist!");
+            }
+            else {
+                userUpdated.setMail(dto.getMail());
+            }
+        }
+        if(dto.getPhone().isBlank()){
+            userUpdated.setPhone(userUpdated.getPhone());
         }else {
-            userUpdated.setPhone(dto.getPhone());
+            if(this.repository.existsByPhone(dto.getPhone())){
+                throw new EntityAlreadyExists("Phone already exist!");
+            }else {
+                userUpdated.setPhone(dto.getPhone());
+            }
         }
-        userUpdated.setPassword( dto.getPassword());
+        //verificar, pois desse jeito retorna a senha do usuario
+        if(dto.getPassword().isBlank()){
+            userUpdated.setPassword(userUpdated.getPassword());
+        }else {
+            userUpdated.setPassword( bCryptPasswordEncoder.encode(dto.getPassword()));
+        }
         userUpdated.setProfileLink(dto.getProfileLink());
         this.repository.save(userUpdated);
         return new UserDTO(userUpdated);
@@ -66,14 +89,12 @@ public class UserService {
     public void deleteUser(Long id){
         User user = this.repository.findById(id).orElseThrow(() ->new EntityNotFound("User not found!"));
         user.setDeleted(true);
+        repository.save(user);
     }
 
     public List<UserDTO> listUserNotDeleted(){
         List<User> list = this.repository.findAllByDeletedFalse();
         return list.stream().map(x-> new UserDTO(x.getName(), x.getProfileLink())).collect(Collectors.toList());
     }
-
-    //Criar um login com spring security usando o username e senha que deverá ser criptografada quando salva no banco.
-
 
 }
