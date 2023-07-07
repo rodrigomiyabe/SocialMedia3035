@@ -44,9 +44,6 @@ public class User implements Serializable {
     private LocalDate updateAt;
     @Column(name = "deleted", nullable = false, columnDefinition = "boolean default false")
     private Boolean deleted;
-    @OneToMany()
-    @JoinColumn(name = "user_id",referencedColumnName = "id")
-    private List<Post> posts;
     @Enumerated(EnumType.STRING)
     private Role role;
 

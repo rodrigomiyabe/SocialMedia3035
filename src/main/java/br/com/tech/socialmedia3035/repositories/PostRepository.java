@@ -22,7 +22,7 @@ public interface PostRepository extends JpaRepository<Post,Long> {
                and p.user.id = (select u.id
                                 from User u
                                where u.username = :username)""")
-    List<Post>lista(@Param("")String username);
+    List<Post>lista(@Param("username")String username);
 
 
 

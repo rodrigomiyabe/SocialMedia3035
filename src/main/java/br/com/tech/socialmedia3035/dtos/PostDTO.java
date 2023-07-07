@@ -2,9 +2,7 @@ package br.com.tech.socialmedia3035.dtos;
 
 import br.com.tech.socialmedia3035.entities.Post;
 import br.com.tech.socialmedia3035.entities.User;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import jakarta.validation.constraints.NotBlank;
 import org.hibernate.annotations.SourceType;
@@ -16,6 +14,8 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @EqualsAndHashCode(of = "id")
+@AllArgsConstructor
+@NoArgsConstructor
 public class PostDTO implements Serializable {
 
     private static final Long serialVersionUID = 1L;
@@ -35,5 +35,12 @@ public class PostDTO implements Serializable {
 
 
     public PostDTO(Post postUpdated) {
+        this.createdAt = postUpdated.getCreatedAt();
+        this.title = postUpdated.getTitle();
+        this.description = postUpdated.getDescription();
+        this.photoLink = postUpdated.getPhotoLink();
+        this.videoLink = postUpdated.getVideoLink();
+        this.privated = postUpdated.getPrivated();
+        this.user = postUpdated.getUser();
     }
 }
